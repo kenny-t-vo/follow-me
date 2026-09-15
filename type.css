@@ -1,0 +1,153 @@
+/* ═══════════════════════════════════════════════════════════════════
+   shared type and colour, loaded by every page.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Redaction 35, Forest Young & Jeremy Mickel, SIL OFL 1.1.
+   self-hosted; licence in assets/fonts/LICENSE.txt */
+@font-face{
+  font-family:"Redaction 35";
+  src:url("fonts/redaction-35-400.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* Plantin MT Pro through local() only; the Adobe Fonts licence is desktop,
+   so no file is served. Chrome exposes the "Plantin MT Pro" family but not
+   the Light and Semibold subfamilies, so faces are named by PostScript name:
+   400 is Light, 600 is Semibold. */
+@font-face{
+  font-family:"Plantin";
+  src:local("PlantinMTPro-Light");
+  font-weight:400; font-style:normal;
+}
+@font-face{
+  font-family:"Plantin";
+  src:local("PlantinMTPro-LightItalic");
+  font-weight:400; font-style:italic;
+}
+@font-face{
+  font-family:"Plantin";
+  src:local("PlantinMTPro-Semibold");
+  font-weight:600; font-style:normal;
+}
+
+/* Times New Roman set to Plantin Light's line metrics (ascent 695, descent
+   305 per 1000) so it sits on the same baseline. 104% because Times sets
+   about 6% narrower at a matching x-height (447 vs 450). */
+@font-face{
+  font-family:"Plantin fallback";
+  src:local("TimesNewRomanPSMT"), local("Times New Roman");
+  font-weight:400; font-style:normal;
+  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"Plantin fallback";
+  src:local("TimesNewRomanPS-ItalicMT"), local("Times New Roman Italic");
+  font-weight:400; font-style:italic;
+  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"Plantin fallback";
+  src:local("TimesNewRomanPS-BoldMT"), local("Times New Roman Bold");
+  font-weight:700; font-style:normal;
+  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"Plantin fallback";
+  src:local("TimesNewRomanPS-BoldItalicMT"), local("Times New Roman Bold Italic");
+  font-weight:700; font-style:italic;
+  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+}
+
+:root{
+  /* ── ground and ink ───────────────────────────────────────────── */
+  --bg:#fff;
+  --fg:#111;
+  --dim:#6f6f6f;      /* secondary copy */
+  --faint:#9a9a9a;    /* labels */
+  --rule:#dcdcdc;     /* hairline */
+  --rule2:#111;       /* structural rule */
+  --wash:#f2f2f7;     /* code backgrounds */
+
+  /* browser-default link colours: blue = unvisited, purple = visited */
+  --blue:#0000ee;
+  --purple:#551a8b;
+
+  /* ── families ─────────────────────────────────────────────────────
+     display: Redaction 35, shipped with the site.
+     body:    Plantin MT Pro, else Times New Roman (drawn from Plantin).
+     figures use the body face.                                          */
+  --display:"Redaction 35","Times New Roman",Times,serif;
+  --body:"Plantin","Plantin MT Pro","Plantin fallback","Times New Roman",Times,
+         "Liberation Serif","Hiragino Mincho ProN","Yu Mincho",serif;
+
+  /* ── six steps ────────────────────────────────────────────────────
+     t1  the one large thing on a screen      display
+     t2  book titles, section heads           display
+     t3  prose (body default)                 body
+     t4  secondary links and copy             body
+     t5  figures: folios, counts              body
+     t6  labels and key hints                 body                     */
+  --t1:22px;
+  --t2:16px;
+  --t3:14px;
+  --t4:12.5px;
+  --t5:11px;
+  --t6:10.5px;
+
+  /* ── spacing ──────────────────────────────────────────────────── */
+  --s1:6px;
+  --s2:12px;
+  --s3:22px;
+  --s4:40px;
+  --s5:72px;
+
+  /* ── the hover highlight ──────────────────────────────────────────
+     height in em, centred on the text: line heights differ (1 in the
+     viewer chrome, 1.35 and 1.9 on the home page), so it is not sized
+     off the line box. bleed is the overhang on each side.       */
+  --hl-height:1.55em;
+  --hl-bleed:.16em;
+
+  /* body tracking. -.01em is -10 in indesign's 1/1000 em units.
+     the display face is not affected: every rule using --display
+     declares its own letter-spacing. */
+  --track:-.01em;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font:var(--t3)/1.5 var(--body);
+  letter-spacing:var(--track);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+a{ color:var(--blue); text-decoration:underline; text-underline-offset:2px;
+   text-decoration-thickness:1px; }
+a:visited{ color:var(--purple); }
+::selection{ background:var(--blue); color:#fff; }
+
+/* inverted band on hover. a positioned pseudo-element: padding would reflow
+   the line, and a box-shadow spreads equally on all sides. */
+.invert{ position:relative; justify-self:start; }
+.invert::before{
+  content:"";
+  position:absolute;
+  left:calc(-1 * var(--hl-bleed));
+  right:calc(-1 * var(--hl-bleed));
+  top:50%;
+  height:var(--hl-height);
+  transform:translateY(-50%);
+  background:var(--blue);
+  z-index:-1;
+  opacity:0;
+}
+.invert:hover::before, .invert:focus-visible::before{ opacity:1; }
+.invert:hover, .invert:focus-visible{
+  color:#fff; text-decoration:none; outline:none;
+}

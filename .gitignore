@@ -1,0 +1,11 @@
+# macOS / exFAT noise
+._*
+.DS_Store
+
+# local clips used for testing the video route are never committed
+*.mp4
+*.mov
+*.webm
+
+node_modules/
+

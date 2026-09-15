@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>follow-me.</title>
+<meta name="description" content="a koi pond that follows your hand.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="follow-me.">
+<meta property="og:description" content="a koi pond that follows your hand.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23fff'/><ellipse cx='16' cy='16' rx='11' ry='4.5' fill='%230000ee'/></svg>">
+<link rel="preload" as="font" type="font/woff2" href="fonts/redaction-35-400.woff2" crossorigin>
+<link rel="stylesheet" href="type.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<canvas id="pond" aria-label="the pond"></canvas>
+
+<header class="hud">
+  <h1 class="title">follow-me.</h1>
+  <p id="hint" class="hint" hidden>move to lead. tap to feed.</p>
+</header>
+
+<nav class="links" aria-label="controls">
+  <span id="status" class="status" aria-live="polite"></span>
+  <button type="button" class="link invert" id="link-settings">settings.</button>
+  <span class="hand-ctl">
+    <button type="button" class="link invert" id="link-hand">hand.</button>
+    <span id="hand-menu" hidden>
+      <button type="button" class="link invert" id="hand-camera">camera.</button>
+      <button type="button" class="link invert" id="hand-video">a video.</button>
+    </span>
+    <button type="button" class="link invert" id="hand-off" hidden>off.</button>
+  </span>
+  <button type="button" class="link invert" id="link-about">about.</button>
+</nav>
+
+<input type="file" id="clip" accept="video/*" hidden>
+
+<aside id="settings" class="pane" hidden aria-label="settings">
+  <div class="pane__head">
+    <h2>settings.</h2>
+    <button type="button" class="link close">done.</button>
+  </div>
+  <div class="pane__body" id="controls"></div>
+  <div class="pane__foot">
+    <button type="button" class="link" data-action="reseed">reseed.</button>
+    <button type="button" class="link" data-action="svg">save svg.</button>
+    <button type="button" class="link" data-action="link">copy link.</button>
+    <button type="button" class="link" data-action="reset">reset.</button>
+    <span id="fps" class="fps"></span>
+  </div>
+</aside>
+
+<aside id="about" class="pane" hidden aria-label="about">
+  <div class="pane__head">
+    <h2>about.</h2>
+    <button type="button" class="link close">done.</button>
+  </div>
+  <div class="pane__body prose">
+    <p>a pond seen from above. the koi swim by flocking rules, come to a pointer that holds still, scatter from one that moves fast, and gather where you tap.</p>
+    <p>with the camera on they follow your hand instead. the hand is found in the browser and nothing leaves it. a clip from disk works the same way, and either can show through the pond as a faint background.</p>
+    <p>each fish is a spine. the head leads, the body follows the path it took, and a travelling wave rides on top with a beat set by speed. ink, koi and grid are three renderings of the same geometry.</p>
+    <p>keys: <span class="k">s</span> settings, <span class="k">h</span> hand, <span class="k">space</span> pause, <span class="k">r</span> reseed, <span class="k">g</span> style, <span class="k">esc</span> close.</p>
+    <p><a href="https://github.com/kenny-t-vo/follow-me">source.</a> mit.</p>
+  </div>
+</aside>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
