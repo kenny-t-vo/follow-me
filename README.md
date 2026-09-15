@@ -27,8 +27,8 @@ Bottom right: `settings.`, `hand.`, `about.`. Under `hand.`, `camera.` asks for
 the camera and `a video.` takes a clip from disk. Landmarks are found in the
 page by MediaPipe; the frames never leave the browser. The library and the
 7.8 MB hand model load from CDNs the first time, so the first start takes a
-few seconds. The feed is hidden by default, or shown as a thumbnail or as a
-faint background behind the pond.
+few seconds. The camera shows as a small thumbnail and a clip as a faint
+background behind the pond; settings can hide either or swap them.
 
 Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle style,
 `esc` close.

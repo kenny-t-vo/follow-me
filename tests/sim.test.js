@@ -68,6 +68,7 @@ test('separation keeps neighbours apart', () => {
 test('a still pointer draws fish in and marks them attracted', () => {
   const sim = make(40);
   const p = defaults();
+  p.reach = 6;
   run(sim, p, 300);
   const actor = { kind: 'pointer', x: W / 2, y: H / 2, still: true, tips: null };
   const before = mean(sim, (i) => Math.hypot(sim.x[i] - W / 2, sim.y[i] - H / 2));

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defaults, diff, apply, toHash, fromHash, load, save, FIELDS } from '../src/params.js';
+import { defaults, diff, apply, toHash, fromHash, load, save, feedView, FIELDS } from '../src/params.js';
 
 function storage() {
   const m = new Map();
@@ -32,7 +32,7 @@ test('apply clamps ranges and refuses unknown values', () => {
   const p = apply(defaults(), { count: 9999, cruise: -4, style: 'neon', inkColor: 'red', bogus: 1, mirror: 'false' });
   assert.equal(p.count, 300);
   assert.equal(p.cruise, 0.2);
-  assert.equal(p.style, 'ink');
+  assert.equal(p.style, defaults().style);
   assert.equal(p.inkColor, '#111111');
   assert.equal('bogus' in p, false);
   assert.equal(p.mirror, false);
@@ -64,4 +64,15 @@ test('every field has a default inside its own range or choices', () => {
     if (f.type === 'range') assert.ok(f.def >= f.min && f.def <= f.max, f.key);
     if (f.type === 'choice') assert.ok(f.choices.includes(f.def), f.key);
   }
+});
+
+test('the auto feed view follows the source until a choice is made', () => {
+  const p = defaults();
+  assert.equal(feedView(p), 'hidden');
+  p.source = 'camera';
+  assert.equal(feedView(p), 'thumbnail');
+  p.source = 'video';
+  assert.equal(feedView(p), 'background');
+  p.feedView = 'hidden';
+  assert.equal(feedView(p), 'hidden');
 });

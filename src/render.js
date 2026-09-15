@@ -3,6 +3,7 @@
 import { smoothClosed, smoothOpen } from './fish.js';
 import { koiPattern } from './koi.js';
 import { cover } from './hand.js';
+import { feedView } from './params.js';
 
 export const BLUE = [0, 0, 238];
 export const PURPLE = [85, 26, 139];
@@ -79,11 +80,12 @@ export class Renderer {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     const p = st.p;
-    if (st.video && p.feedView === 'background') this.drawVideo(ctx, st, 0, 0, w, h, p.feedOpacity);
+    const feed = feedView(p);
+    if (st.video && feed === 'background') this.drawVideo(ctx, st, 0, 0, w, h, p.feedOpacity);
     if (p.style === 'grid') this.drawGrid(ctx, st);
     else this.drawVector(ctx, st);
     this.drawOverlay(ctx, st);
-    if (st.video && p.feedView === 'thumbnail') {
+    if (st.video && feed === 'thumbnail') {
       const v = st.video;
       const tw = Math.min(160, w * 0.3), th = tw * (v.videoHeight / v.videoWidth || 0.75);
       const x = 22, y = 22;
