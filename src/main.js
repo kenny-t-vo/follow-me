@@ -9,7 +9,7 @@ import { Drops } from './sound.js';
 
 const STEP = 1 / 60;
 const HINTED = 'follow-me.hinted';
-const LOOKS = [['ink'], ['grid', 'square'], ['grid', 'cross'], ['grid', 'ascii']];
+const MARKS = ['square', 'cross', 'ascii'];
 
 const canvas = document.getElementById('pond');
 const clipInput = document.getElementById('clip');
@@ -209,17 +209,13 @@ addEventListener('keydown', (e) => {
     e.preventDefault();
     onAction('pause');
   } else if (k === 'r') onAction('reseed');
-  else if (k === 'g') nextLook();
+  else if (k === 'g') nextMark();
   else return;
   e.preventDefault();
 });
 
-// ink, then the grid marks in turn
-function nextLook() {
-  const at = p.style === 'ink' ? 0 : LOOKS.findIndex((l) => l[1] === p.gridMark);
-  const [style, mark] = LOOKS[(at + 1) % LOOKS.length];
-  ui.set('style', style);
-  if (mark) ui.set('gridMark', mark);
+function nextMark() {
+  ui.set('gridMark', MARKS[(MARKS.indexOf(p.gridMark) + 1) % MARKS.length]);
 }
 
 function stepPointer(dt, stillPx) {
@@ -234,6 +230,19 @@ function stepPointer(dt, stillPx) {
   pointer.y = ny;
   pointer.speed = Math.hypot(pointer.vx, pointer.vy);
   pointer.still = pointer.speed < stillPx;
+}
+
+// a drop for every body length a hand travels, counted only while it moves
+// faster than half a length per second, at most one every 150 ms
+function stepHandDrops(hd) {
+  if (hd.speed > 0.5 * L) hd.travel += Math.hypot(hd.x - hd.lx, hd.y - hd.ly);
+  hd.lx = hd.x;
+  hd.ly = hd.y;
+  if (hd.travel >= L && sim.t - hd.dropAt > 0.15) {
+    hd.travel = 0;
+    hd.dropAt = sim.t;
+    if (p.sound) drops.play();
+  }
 }
 
 function actorsOf(hands) {
@@ -276,6 +285,7 @@ function frame(now) {
         hd.rippleAt = sim.t;
         ripples.push({ x: hd.x, y: hd.y, t0: sim.t, dur: 1.6, r: 1.5 * L });
       }
+      stepHandDrops(hd);
     }
   }
   renderer.frame(state(hands));

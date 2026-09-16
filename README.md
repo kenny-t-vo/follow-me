@@ -30,12 +30,12 @@ library and the 7.8 MB hand model load from CDNs once, so the first start
 takes a few seconds. The camera shows as a small thumbnail and a clip as a
 faint background behind the pond; settings can hide either or swap them.
 
-Each tap plays a water drop; `mute.` in the top right, or `drop on tap` in
-settings, turns it off. The drops are 15 slices of one short recording in
-`sounds/`, one picked at random, pitch varied by up to 12% and volume by up to
-30%.
+Each tap plays a water drop, and a tracked hand plays one for every body
+length it moves. `mute.` in the top right, or `drop on tap` in settings, turns
+them off. The drops are 15 slices of one short recording in `sounds/`, one
+picked at random, pitch varied by up to 12% and volume by up to 30%.
 
-Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle the look,
+Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle the mark,
 `esc` close.
 
 Settings persist in the browser. `copy link.` puts the changed ones in the
@@ -68,11 +68,12 @@ number near 0.3. The outline comes from a width profile along the spine with
 a forked caudal fin, and pectoral fins that flare on the inside of a turn and
 when braking.
 
-Two renderings of that geometry: `ink` (fill and hairline) and `grid` (fish
-rasterised into cells, one mark per covered cell). The mark is a square scaled
-by how much of it the fish covers, a cross scaled in `levels` steps, or a
-glyph from the ramp `.:-=+*#%@` thinned to `levels` tones. Cells can fade and
-can take the koi colours, one per fish from the seed.
+That geometry is rasterised into cells, one mark per covered cell. The mark
+is a square scaled by how much of it the fish covers, a cross scaled in
+`levels` steps, or a glyph from the ramp `.:-=+*#%@` thinned to `levels`
+tones. Cells can fade and can take the koi colours, one per fish from the
+seed. Ripples and food take the chosen colour; with koi colours they are ink,
+moving toward white as a background feed gets more opaque.
 
 ## Layout
 
@@ -81,7 +82,7 @@ can take the koi colours, one per fish from the seed.
 - `src/params.js`: the settings schema. One entry drives the pane,
   localStorage and the share link.
 - `src/sim.js`: boids. `src/fish.js`: spine and outline. `src/render.js`:
-  the two styles, the grid marks and overlays. `src/koi.js`: variety colours.
+  the grid marks and overlays. `src/koi.js`: variety colours.
   `src/sound.js`: the drop on tap, sliced from `sounds/drops.mp3`.
   `src/hand.js`: camera, clip and MediaPipe. `src/ui.js`: the panes.
   `src/svg.js`: the snapshot. `src/main.js`: wiring.

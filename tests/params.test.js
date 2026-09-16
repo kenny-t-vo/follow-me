@@ -16,24 +16,24 @@ test('defaults produce an empty diff and an empty hash', () => {
 test('a share link round-trips every field type', () => {
   const p = defaults();
   p.count = 55;
-  p.style = 'ink';
+  p.gridMark = 'ascii';
   p.pointer = false;
   p.gridColor = '#0000ee';
   p.cruise = 1.25;
   const q = apply(defaults(), fromHash(toHash(p)));
   assert.equal(q.count, 55);
-  assert.equal(q.style, 'ink');
+  assert.equal(q.gridMark, 'ascii');
   assert.equal(q.pointer, false);
   assert.equal(q.gridColor, '#0000ee');
   assert.equal(q.cruise, 1.25);
 });
 
 test('apply clamps ranges and refuses unknown values', () => {
-  const p = apply(defaults(), { count: 9999, cruise: -4, style: 'neon', inkColor: 'red', bogus: 1, mirror: 'false' });
+  const p = apply(defaults(), { count: 9999, cruise: -4, gridMark: 'neon', gridColor: 'red', bogus: 1, mirror: 'false' });
   assert.equal(p.count, 300);
   assert.equal(p.cruise, 0.2);
-  assert.equal(p.style, defaults().style);
-  assert.equal(p.inkColor, '#111111');
+  assert.equal(p.gridMark, 'square');
+  assert.equal(p.gridColor, '#111111');
   assert.equal('bogus' in p, false);
   assert.equal(p.mirror, false);
 });
@@ -54,9 +54,9 @@ test('the hash wins over the store', () => {
   const p = defaults();
   p.count = 3;
   save(st, p);
-  const q = load(st, '#count=12&style=ink');
+  const q = load(st, '#count=12&gridMark=cross');
   assert.equal(q.count, 12);
-  assert.equal(q.style, 'ink');
+  assert.equal(q.gridMark, 'cross');
 });
 
 test('every field has a default inside its own range or choices', () => {

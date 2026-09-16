@@ -1,6 +1,9 @@
 // one frame of the pond as svg, in the current style
 import { smoothClosed, smoothOpen } from './fish.js';
-import { hexRgb, rgba, css, mix, stateColor, glyphs, level, FONT, GLYPH_SCALE, CROSS_ARM } from './render.js';
+import { rgba, css, mix, stateColor, glyphs, level, FONT, GLYPH_SCALE, CROSS_ARM } from './render.js';
+
+const INK = [17, 17, 17];
+const INK_FILL = 0.8;
 
 class PathSink {
   constructor() {
@@ -37,7 +40,7 @@ export function snapshot(st, renderer) {
   const { sim, fish, p, L } = st;
   const w = renderer.w, h = renderer.h;
   const out = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`];
-  if (p.style === 'grid') {
+  if (p.style !== 'ink') {
     const cell = p.gridCell, mark = p.gridMark, n = p.gridLevels, full = cell * p.gridInset;
     const ramp = glyphs(n);
     for (const grp of renderer.gridCells(st).values()) {
@@ -65,7 +68,7 @@ export function snapshot(st, renderer) {
       out.push(`<path fill="${css(grp.rgb)}" d="${d}"/>`);
     }
   } else {
-    const ink = hexRgb(p.inkColor);
+    // legacy ink, see render.js
     const n = Math.min(sim.n, fish.n);
     let g = null;
     for (let i = 0; i < n; i++) {
@@ -74,9 +77,9 @@ export function snapshot(st, renderer) {
       const sc = stateColor(sim, i, p);
       const body = pathOf(g.body), fl = pathOf(g.finL), fr = pathOf(g.finR);
       const edge = edgeOf(g.finL) + edgeOf(g.finR);
-      const col = sc ? mix(ink, sc[0], sc[1]) : ink;
-      out.push(`<g fill="${rgba(col, p.inkFill * depth)}"><path d="${fl}"/><path d="${fr}"/><path d="${body}"/></g>`);
-      if (p.inkStroke) out.push(`<g fill="none" stroke="${rgba(col, 0.85 * depth)}" stroke-width="0.5"><path d="${edge}"/><path d="${body}"/></g>`);
+      const col = sc ? mix(INK, sc[0], sc[1]) : INK;
+      out.push(`<g fill="${rgba(col, INK_FILL * depth)}"><path d="${fl}"/><path d="${fr}"/><path d="${body}"/></g>`);
+      out.push(`<g fill="none" stroke="${rgba(col, 0.85 * depth)}" stroke-width="0.5"><path d="${edge}"/><path d="${body}"/></g>`);
     }
   }
   out.push('</svg>');

@@ -1,5 +1,6 @@
-// two renderings of the same geometry: ink and grid. overlays (food,
-// ripples, hand markers, the camera feed) are shared.
+// fish rasterised into a grid of marks. overlays: food, ripples, hand
+// markers, the camera feed. the ink rendering is legacy, off the schema and
+// reached only by followMe.p.style = 'ink' in the console.
 import { smoothClosed, smoothOpen } from './fish.js';
 import { koiColor } from './koi.js';
 import { cover } from './hand.js';
@@ -8,6 +9,8 @@ import { feedView } from './params.js';
 export const BLUE = [0, 0, 238];
 export const PURPLE = [85, 26, 139];
 const INK = [17, 17, 17];
+const WHITE = [255, 255, 255];
+const INK_FILL = 0.8; // legacy ink body alpha
 
 // grid marks. the ramp is in order of ink, one glyph per tone level
 export const RAMP = '.:-=+*#%@';
@@ -100,8 +103,8 @@ export class Renderer {
     const p = st.p;
     const feed = feedView(p);
     if (st.video && feed === 'background') this.drawVideo(ctx, st, 0, 0, w, h, p.feedOpacity);
-    if (p.style === 'grid') this.drawGrid(ctx, st);
-    else this.drawInk(ctx, st);
+    if (p.style === 'ink') this.drawInk(ctx, st);
+    else this.drawGrid(ctx, st);
     this.drawOverlay(ctx, st);
     if (st.video && feed === 'thumbnail') {
       const v = st.video;
@@ -147,23 +150,20 @@ export class Renderer {
     const { sim, fish, p, L } = st;
     const n = Math.min(sim.n, fish.n);
     const hair = 1 / this.dpr;
-    const ink = hexRgb(p.inkColor);
     for (let i = 0; i < n; i++) {
       const g = this.geo = fish.geometry(i, sim, L, p, this.geo);
       const depth = 0.7 + 0.3 * sim.sizeRel[i];
       const sc = stateColor(sim, i, p);
       const { body, fl, fr, edge } = this.paths(g);
-      const col = sc ? mix(ink, sc[0], sc[1]) : ink;
-      ctx.fillStyle = rgba(col, p.inkFill * depth);
+      const col = sc ? mix(INK, sc[0], sc[1]) : INK;
+      ctx.fillStyle = rgba(col, INK_FILL * depth);
       ctx.fill(fl);
       ctx.fill(fr);
       ctx.fill(body);
-      if (p.inkStroke) {
-        ctx.strokeStyle = rgba(col, 0.85 * depth);
-        ctx.lineWidth = hair;
-        ctx.stroke(edge);
-        ctx.stroke(body);
-      }
+      ctx.strokeStyle = rgba(col, 0.85 * depth);
+      ctx.lineWidth = hair;
+      ctx.stroke(edge);
+      ctx.stroke(body);
       if (g.L > 36) {
         ctx.fillStyle = rgba(col, 0.9 * depth);
         this.dots(ctx, g.eyes, g.eyeR);
@@ -281,13 +281,23 @@ export class Renderer {
     }
   }
 
+  // ripples and food take the fish colour. with koi colours they are ink,
+  // moving toward white with the opacity of a background feed
+  markColor(st) {
+    const p = st.p;
+    if (!p.gridPerFish) return hexRgb(p.gridColor);
+    if (st.video && feedView(p) === 'background') return mix(INK, WHITE, p.feedOpacity);
+    return INK;
+  }
+
   drawOverlay(ctx, st) {
     const { sim, p, L, actors, ripples, t, reduced } = st;
     const hair = 1 / this.dpr;
+    const mark = this.markColor(st);
     ctx.lineWidth = hair;
     for (const f of sim.foods) {
       const r = 0.02 * L * (0.5 + 0.5 * Math.max(0, f.amount));
-      ctx.fillStyle = 'rgba(17,17,17,0.8)';
+      ctx.fillStyle = rgba(mark, 0.8);
       ctx.beginPath();
       ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -301,7 +311,7 @@ export class Renderer {
       }
       const e = 1 - Math.pow(1 - u, 3);
       const r = reduced ? rp.r * 0.6 : rp.r * e;
-      ctx.strokeStyle = rgba(INK, 0.5 * (1 - u));
+      ctx.strokeStyle = rgba(mark, 0.5 * (1 - u));
       ctx.beginPath();
       ctx.arc(rp.x, rp.y, r, 0, Math.PI * 2);
       ctx.stroke();

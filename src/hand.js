@@ -178,7 +178,7 @@ export class HandInput {
           }
         }
         if (!best) {
-          best = { kind: 'hand', id: this.nextId++, x: det.x, y: det.y, vx: 0, vy: 0, speed: 0, still: true, tips: det.tips, seen: now, rippleAt: 0 };
+          best = { kind: 'hand', id: this.nextId++, x: det.x, y: det.y, vx: 0, vy: 0, speed: 0, still: true, tips: det.tips, seen: now, rippleAt: 0, lx: det.x, ly: det.y, travel: 0, dropAt: 0 };
           hands.push(best);
         }
         taken.add(best);
