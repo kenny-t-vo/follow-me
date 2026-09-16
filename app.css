@@ -36,6 +36,7 @@ html,body{ height:100%; overflow:hidden; overscroll-behavior:none; }
   display:flex; gap:var(--s2); align-items:baseline; font-size:var(--t4);
 }
 .status{ font-size:var(--t6); letter-spacing:var(--track-label); color:var(--faint); }
+.corner{ position:fixed; right:var(--s3); top:var(--s3); font-size:var(--t4); }
 .hand-ctl{ display:inline-flex; gap:var(--s2); align-items:baseline; }
 #hand-menu{ display:inline-flex; gap:var(--s2); }
 
@@ -134,6 +135,7 @@ input[type=color]::-webkit-color-swatch{ border:0; }
 @media (max-width:520px){
   .hud{ left:var(--s2); bottom:var(--s2); }
   .links{ right:var(--s2); bottom:var(--s2); flex-wrap:wrap; justify-content:flex-end; max-width:60vw; }
+  .corner{ right:var(--s2); top:var(--s2); }
   .pane{ width:100%; border-left:0; }
 }
 

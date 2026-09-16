@@ -23,16 +23,17 @@ Move the pointer and fish within reach come to it. Move fast and the ones
 nearby startle and burst away. Tap or click to drop food; a ripple marks the
 spot and the fish eat it over a few seconds.
 
-Bottom right: `settings.`, `hand.`, `about.`. Under `hand.`, `camera.` asks for
-the camera and `a video.` takes a clip from disk. MediaPipe finds the hand in
-the page; the frames never leave the browser. The library and the 7.8 MB hand
-model load from CDNs once, so the first start takes a few seconds. The camera
-shows as a small thumbnail and a clip as a faint background behind the pond;
-settings can hide either or swap them.
+Bottom right: `settings.`, `hand.`, `about.`; top right, `mute.`. Under
+`hand.`, `camera.` asks for the camera and `a video.` takes a clip from disk.
+MediaPipe finds the hand in the page; the frames never leave the browser. The
+library and the 7.8 MB hand model load from CDNs once, so the first start
+takes a few seconds. The camera shows as a small thumbnail and a clip as a
+faint background behind the pond; settings can hide either or swap them.
 
-`drop on tap` in settings plays a water drop on each tap, off by default. The
-drops are 15 slices of one short recording in `sounds/`, one picked at random,
-pitch varied by up to 12% and volume by up to 30%.
+Each tap plays a water drop; `mute.` in the top right, or `drop on tap` in
+settings, turns it off. The drops are 15 slices of one short recording in
+`sounds/`, one picked at random, pitch varied by up to 12% and volume by up to
+30%.
 
 Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle the look,
 `esc` close.

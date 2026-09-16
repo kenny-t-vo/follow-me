@@ -60,8 +60,9 @@ function onChange(key, v) {
     fish.resetAll();
   } else if (key === 'source') {
     setSource(v);
-  } else if (key === 'sound' && v) {
-    drops.load();
+  } else if (key === 'sound') {
+    if (v) drops.load();
+    syncSoundLink();
   }
 }
 
@@ -78,6 +79,8 @@ function onAction(name) {
     sim.reseed(p.seed);
     fish.resetAll();
     ui.refresh();
+    syncSoundLink();
+    if (p.sound) drops.load();
     ui.status('settings reset.');
   } else if (name === 'link') {
     const url = location.origin + location.pathname + P.toHash(p);
@@ -142,6 +145,11 @@ handOff.addEventListener('click', () => {
   ui.set('source', 'off');
   ui.status('');
 });
+const soundLink = document.getElementById('link-sound');
+function syncSoundLink() {
+  soundLink.textContent = p.sound ? 'mute.' : 'sound.';
+}
+soundLink.addEventListener('click', () => ui.set('sound', !p.sound));
 document.getElementById('link-settings').addEventListener('click', () => ui.toggle('settings'));
 document.getElementById('link-about').addEventListener('click', () => ui.toggle('about'));
 
@@ -284,6 +292,7 @@ addEventListener('resize', resize);
 ui.build();
 resize();
 syncHandLinks();
+syncSoundLink();
 if (p.sound) drops.load();
 requestAnimationFrame(frame);
 

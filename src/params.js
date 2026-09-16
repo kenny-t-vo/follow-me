@@ -36,7 +36,7 @@ export const GROUPS = [
       { key: 'startleSpeed', label: 'startle speed', type: 'range', min: 0.5, max: 10, step: 0.1, def: 3, unit: 'bl/s' },
       { key: 'fingertips', label: 'fingertips', type: 'range', min: 0, max: 3, step: 0.05, def: 0.6 },
       { key: 'feed', label: 'feed lasts', type: 'range', min: 1, max: 20, step: 0.5, def: 5, unit: 's' },
-      { key: 'sound', label: 'drop on tap', type: 'bool', def: false },
+      { key: 'sound', label: 'drop on tap', type: 'bool', def: true },
       { key: 'stateColors', label: 'blue and purple', type: 'bool', def: true },
     ],
   },
