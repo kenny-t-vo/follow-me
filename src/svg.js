@@ -1,6 +1,6 @@
 // one frame of the pond as svg, in the current style
 import { smoothClosed, smoothOpen } from './fish.js';
-import { hexRgb, rgba, mix, stateColor } from './render.js';
+import { hexRgb, rgba, css, mix, stateColor, glyphs, level, FONT, GLYPH_SCALE, CROSS_ARM } from './render.js';
 
 class PathSink {
   constructor() {
@@ -29,8 +29,8 @@ function edgeOf(pts) {
   return s.d;
 }
 
-function rgb(c) {
-  return `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
+function rect(x, y, w, h) {
+  return `M${x.toFixed(2)} ${y.toFixed(2)}h${w.toFixed(2)}v${h.toFixed(2)}h${(-w).toFixed(2)}Z`;
 }
 
 export function snapshot(st, renderer) {
@@ -38,14 +38,31 @@ export function snapshot(st, renderer) {
   const w = renderer.w, h = renderer.h;
   const out = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`];
   if (p.style === 'grid') {
+    const cell = p.gridCell, mark = p.gridMark, n = p.gridLevels, full = cell * p.gridInset;
+    const ramp = glyphs(n);
     for (const grp of renderer.gridCells(st).values()) {
       const cs = grp.cells;
+      if (mark === 'ascii') {
+        out.push(`<g fill="${css(grp.rgb)}" font-family="${FONT}" font-size="${(cell * GLYPH_SCALE).toFixed(1)}" text-anchor="middle" dominant-baseline="central">`);
+        for (let k = 0; k < cs.length; k += 3) {
+          out.push(`<text x="${cs[k].toFixed(1)}" y="${cs[k + 1].toFixed(1)}">${ramp[level(cs[k + 2], n)]}</text>`);
+        }
+        out.push('</g>');
+        continue;
+      }
       let d = '';
       for (let k = 0; k < cs.length; k += 3) {
-        const half = cs[k + 2] * 0.5;
-        d += `M${(cs[k] - half).toFixed(2)} ${(cs[k + 1] - half).toFixed(2)}h${cs[k + 2].toFixed(2)}v${cs[k + 2].toFixed(2)}h${(-cs[k + 2]).toFixed(2)}Z`;
+        const x = cs[k], y = cs[k + 1], a = cs[k + 2];
+        if (mark === 'cross') {
+          const size = (full * (level(a, n) + 1)) / n;
+          const t = Math.max(0.5, size * CROSS_ARM);
+          d += rect(x - size / 2, y - t / 2, size, t) + rect(x - t / 2, y - size / 2, t, size);
+        } else {
+          const size = full * a;
+          d += rect(x - size / 2, y - size / 2, size, size);
+        }
       }
-      out.push(`<path fill="${rgb(grp.rgb)}" d="${d}"/>`);
+      out.push(`<path fill="${css(grp.rgb)}" d="${d}"/>`);
     }
   } else {
     const ink = hexRgb(p.inkColor);
@@ -57,29 +74,9 @@ export function snapshot(st, renderer) {
       const sc = stateColor(sim, i, p);
       const body = pathOf(g.body), fl = pathOf(g.finL), fr = pathOf(g.finR);
       const edge = edgeOf(g.finL) + edgeOf(g.finR);
-      if (p.style === 'ink') {
-        const col = sc ? mix(ink, sc[0], sc[1]) : ink;
-        out.push(`<g fill="${rgba(col, p.inkFill * depth)}"><path d="${fl}"/><path d="${fr}"/><path d="${body}"/></g>`);
-        if (p.inkStroke) out.push(`<g fill="none" stroke="${rgba(col, 0.85 * depth)}" stroke-width="0.5"><path d="${edge}"/><path d="${body}"/></g>`);
-        continue;
-      }
-      const pt = renderer.pattern(sim.seed, i);
-      out.push(`<g opacity="${(0.82 + 0.18 * sim.sizeRel[i]).toFixed(3)}">`);
-      out.push(`<g fill="${rgba(pt.rgb, 0.45)}"><path d="${fl}"/><path d="${fr}"/></g><path fill="none" stroke="rgba(17,17,17,0.22)" stroke-width="0.5" d="${edge}"/>`);
-      out.push(`<path fill="${pt.base}" d="${body}"/>`);
-      if (pt.blotches.length) {
-        const id = `c${i}`;
-        out.push(`<clipPath id="${id}"><path d="${body}"/></clipPath><g clip-path="url(#${id})">`);
-        for (const b of pt.blotches) {
-          const s = new PathSink();
-          smoothClosed(renderer.blotchPoints(fish, i, b, g.L), s);
-          out.push(`<path fill="${b.color}" d="${s.d}"/>`);
-        }
-        out.push('</g>');
-      }
-      if (sc) out.push(`<path fill="none" stroke="${rgba(sc[0], sc[1])}" stroke-width="0.75" d="${body}"/>`);
-      else if (p.koiOutline) out.push(`<path fill="none" stroke="rgba(17,17,17,0.28)" stroke-width="0.5" d="${body}"/>`);
-      out.push('</g>');
+      const col = sc ? mix(ink, sc[0], sc[1]) : ink;
+      out.push(`<g fill="${rgba(col, p.inkFill * depth)}"><path d="${fl}"/><path d="${fr}"/><path d="${body}"/></g>`);
+      if (p.inkStroke) out.push(`<g fill="none" stroke="${rgba(col, 0.85 * depth)}" stroke-width="0.5"><path d="${edge}"/><path d="${body}"/></g>`);
     }
   }
   out.push('</svg>');

@@ -1,13 +1,31 @@
-// three renderings of the same geometry: ink, koi and grid. overlays (food,
+// two renderings of the same geometry: ink and grid. overlays (food,
 // ripples, hand markers, the camera feed) are shared.
 import { smoothClosed, smoothOpen } from './fish.js';
-import { koiPattern } from './koi.js';
+import { koiColor } from './koi.js';
 import { cover } from './hand.js';
 import { feedView } from './params.js';
 
 export const BLUE = [0, 0, 238];
 export const PURPLE = [85, 26, 139];
 const INK = [17, 17, 17];
+
+// grid marks. the ramp is in order of ink, one glyph per tone level
+export const RAMP = '.:-=+*#%@';
+export const FONT = 'ui-monospace, Menlo, Consolas, monospace';
+export const GLYPH_SCALE = 1.3; // font size over cell size
+export const CROSS_ARM = 0.18; // arm width over cross size
+
+export function glyphs(levels) {
+  const n = Math.max(2, Math.min(RAMP.length, levels | 0));
+  const out = [];
+  for (let k = 0; k < n; k++) out.push(RAMP[Math.round((k * (RAMP.length - 1)) / (n - 1))]);
+  return out;
+}
+
+// coverage 0..1 to a tone level 0..n-1
+export function level(a, n) {
+  return Math.min(n - 1, Math.floor(a * n));
+}
 
 export function hexRgb(hex) {
   const n = parseInt(hex.slice(1), 16);
@@ -16,6 +34,10 @@ export function hexRgb(hex) {
 
 export function rgba(c, a) {
   return `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+}
+
+export function css(c) {
+  return `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
 }
 
 export function mix(a, b, t) {
@@ -41,12 +63,10 @@ export class Renderer {
     this.w = 0;
     this.h = 0;
     this.geo = null;
-    this.patterns = new Map();
-    this.patternSeed = null;
+    this.colors = new Map();
+    this.colorSeed = null;
     this.gridBuf = null;
     this.gridRgb = null;
-    this.at = new Float32Array(5);
-    this.blotch = new Float32Array(20);
   }
 
   resize(w, h, dpr) {
@@ -59,19 +79,17 @@ export class Renderer {
     this.canvas.style.height = h + 'px';
   }
 
-  pattern(seed, i) {
-    if (seed !== this.patternSeed) {
-      this.patterns.clear();
-      this.patternSeed = seed;
+  color(seed, i) {
+    if (seed !== this.colorSeed) {
+      this.colors.clear();
+      this.colorSeed = seed;
     }
-    let pt = this.patterns.get(i);
-    if (!pt) {
-      pt = koiPattern(seed, i);
-      pt.rgb = hexRgb(pt.base);
-      for (const b of pt.blotches) b.rgb = hexRgb(b.color);
-      this.patterns.set(i, pt);
+    let c = this.colors.get(i);
+    if (!c) {
+      c = hexRgb(koiColor(seed, i));
+      this.colors.set(i, c);
     }
-    return pt;
+    return c;
   }
 
   // st: { sim, fish, p, L, actors, ripples, video, t, reduced, now }
@@ -83,7 +101,7 @@ export class Renderer {
     const feed = feedView(p);
     if (st.video && feed === 'background') this.drawVideo(ctx, st, 0, 0, w, h, p.feedOpacity);
     if (p.style === 'grid') this.drawGrid(ctx, st);
-    else this.drawVector(ctx, st);
+    else this.drawInk(ctx, st);
     this.drawOverlay(ctx, st);
     if (st.video && feed === 'thumbnail') {
       const v = st.video;
@@ -125,68 +143,31 @@ export class Renderer {
     return { body, fl, fr, edge };
   }
 
-  drawVector(ctx, st) {
+  drawInk(ctx, st) {
     const { sim, fish, p, L } = st;
     const n = Math.min(sim.n, fish.n);
     const hair = 1 / this.dpr;
     const ink = hexRgb(p.inkColor);
-    const koi = p.style === 'koi';
     for (let i = 0; i < n; i++) {
       const g = this.geo = fish.geometry(i, sim, L, p, this.geo);
       const depth = 0.7 + 0.3 * sim.sizeRel[i];
       const sc = stateColor(sim, i, p);
       const { body, fl, fr, edge } = this.paths(g);
-      if (!koi) {
-        const col = sc ? mix(ink, sc[0], sc[1]) : ink;
-        ctx.fillStyle = rgba(col, p.inkFill * depth);
-        ctx.fill(fl);
-        ctx.fill(fr);
-        ctx.fill(body);
-        if (p.inkStroke) {
-          ctx.strokeStyle = rgba(col, 0.85 * depth);
-          ctx.lineWidth = hair;
-          ctx.stroke(edge);
-          ctx.stroke(body);
-        }
-        if (g.L > 36) {
-          ctx.fillStyle = rgba(col, 0.9 * depth);
-          this.dots(ctx, g.eyes, g.eyeR);
-        }
-        continue;
-      }
-      const pt = this.pattern(sim.seed, i);
-      ctx.globalAlpha = 0.82 + 0.18 * sim.sizeRel[i];
-      ctx.fillStyle = rgba(pt.rgb, 0.45);
+      const col = sc ? mix(ink, sc[0], sc[1]) : ink;
+      ctx.fillStyle = rgba(col, p.inkFill * depth);
       ctx.fill(fl);
       ctx.fill(fr);
-      ctx.strokeStyle = 'rgba(17,17,17,0.22)';
-      ctx.lineWidth = hair;
-      ctx.stroke(edge);
-      ctx.fillStyle = pt.base;
       ctx.fill(body);
-      if (pt.blotches.length) {
-        ctx.save();
-        ctx.clip(body);
-        for (const b of pt.blotches) {
-          ctx.fillStyle = b.color;
-          ctx.fill(this.blotchPath(fish, i, b, g.L));
-        }
-        ctx.restore();
-      }
-      if (sc) {
-        ctx.strokeStyle = rgba(sc[0], sc[1]);
-        ctx.lineWidth = 1.5 * hair;
-        ctx.stroke(body);
-      } else if (p.koiOutline) {
-        ctx.strokeStyle = 'rgba(17,17,17,0.28)';
+      if (p.inkStroke) {
+        ctx.strokeStyle = rgba(col, 0.85 * depth);
         ctx.lineWidth = hair;
+        ctx.stroke(edge);
         ctx.stroke(body);
       }
       if (g.L > 36) {
-        ctx.fillStyle = '#111';
+        ctx.fillStyle = rgba(col, 0.9 * depth);
         this.dots(ctx, g.eyes, g.eyeR);
       }
-      ctx.globalAlpha = 1;
     }
   }
 
@@ -198,32 +179,8 @@ export class Renderer {
     }
   }
 
-  // a blotch is an ellipse in body space (arc position, side offset) with
-  // ten wobbled radii, placed along the spine
-  blotchPath(fish, i, b, L) {
-    const path = new Path2D();
-    smoothClosed(this.blotchPoints(fish, i, b, L), path);
-    return path;
-  }
-
-  blotchPoints(fish, i, b, L) {
-    const a = fish.at(i, b.s, this.at);
-    const nx = a[2], ny = a[3], tx = ny, ty = -nx;
-    const hw = a[4] * L;
-    const cx = a[0] + nx * b.u * hw, cy = a[1] + ny * b.u * hw;
-    const pts = this.blotch;
-    for (let q = 0; q < 10; q++) {
-      const ang = (q / 10) * Math.PI * 2;
-      const dx = Math.cos(ang) * b.rs * L * b.wob[q];
-      const dy = Math.sin(ang) * b.ru * hw * b.wob[q];
-      pts[q * 2] = cx + tx * dx + nx * dy;
-      pts[q * 2 + 1] = cy + ty * dx + ny * dy;
-    }
-    return pts;
-  }
-
   // fills fish into an offscreen canvas one cell per pixel, then reads the
-  // coverage back. returns groups of { rgb, cells: [cx, cy, size, ...] }
+  // coverage back. returns groups of { rgb, cells: [cx, cy, coverage, ...] }
   gridCells(st) {
     const { sim, fish, p, L } = st;
     const cell = p.gridCell;
@@ -242,9 +199,9 @@ export class Renderer {
     for (let i = 0; i < n; i++) {
       const g = this.geo = fish.geometry(i, sim, L, p, this.geo);
       const sc = stateColor(sim, i, p);
-      let col = p.gridPerFish ? this.pattern(sim.seed, i).rgb : base;
+      let col = p.gridPerFish ? this.color(sim.seed, i) : base;
       if (sc) col = mix(col, sc[0], sc[1]);
-      octx.fillStyle = `rgb(${col[0] | 0},${col[1] | 0},${col[2] | 0})`;
+      octx.fillStyle = css(col);
       const { body, fl, fr } = this.paths(g);
       octx.fill(fl);
       octx.fill(fr);
@@ -254,7 +211,6 @@ export class Renderer {
     const fade = p.gridFade;
     const buf = this.gridBuf, rgbBuf = this.gridRgb;
     const groups = new Map();
-    const inset = cell * p.gridInset;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const idx = r * cols + c;
@@ -280,22 +236,47 @@ export class Renderer {
           grp = { rgb: [(key >> 16) & 255, (key >> 8) & 255, key & 255], cells: [] };
           groups.set(key, grp);
         }
-        grp.cells.push((c + 0.5) * cell, (r + 0.5) * cell, inset * a);
+        grp.cells.push((c + 0.5) * cell, (r + 0.5) * cell, a);
       }
     }
     return groups;
   }
 
+  // one mark per covered cell: a square scaled by coverage, a cross scaled
+  // in steps, or a glyph from the ramp
   drawGrid(ctx, st) {
+    const p = st.p, cell = p.gridCell, mark = p.gridMark, n = p.gridLevels;
     const groups = this.gridCells(st);
+    if (mark === 'ascii') {
+      const ramp = glyphs(n);
+      ctx.font = `${(cell * GLYPH_SCALE).toFixed(1)}px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (const grp of groups.values()) {
+        ctx.fillStyle = css(grp.rgb);
+        const cs = grp.cells;
+        for (let k = 0; k < cs.length; k += 3) ctx.fillText(ramp[level(cs[k + 2], n)], cs[k], cs[k + 1]);
+      }
+      return;
+    }
+    const full = cell * p.gridInset;
+    const hair = 1 / this.dpr;
     for (const grp of groups.values()) {
       const path = new Path2D();
       const cs = grp.cells;
       for (let k = 0; k < cs.length; k += 3) {
-        const half = cs[k + 2] * 0.5;
-        path.rect(cs[k] - half, cs[k + 1] - half, cs[k + 2], cs[k + 2]);
+        const x = cs[k], y = cs[k + 1], a = cs[k + 2];
+        if (mark === 'cross') {
+          const size = (full * (level(a, n) + 1)) / n;
+          const t = Math.max(hair, size * CROSS_ARM);
+          path.rect(x - size / 2, y - t / 2, size, t);
+          path.rect(x - t / 2, y - size / 2, t, size);
+        } else {
+          const size = full * a;
+          path.rect(x - size / 2, y - size / 2, size, size);
+        }
       }
-      ctx.fillStyle = `rgb(${grp.rgb[0]},${grp.rgb[1]},${grp.rgb[2]})`;
+      ctx.fillStyle = css(grp.rgb);
       ctx.fill(path);
     }
   }

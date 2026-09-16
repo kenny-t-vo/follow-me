@@ -5,9 +5,11 @@ import { Renderer } from './render.js';
 import { HandInput } from './hand.js';
 import { UI } from './ui.js';
 import { snapshot, download } from './svg.js';
+import { Drops } from './sound.js';
 
 const STEP = 1 / 60;
 const HINTED = 'follow-me.hinted';
+const LOOKS = [['ink'], ['grid', 'square'], ['grid', 'cross'], ['grid', 'ascii']];
 
 const canvas = document.getElementById('pond');
 const clipInput = document.getElementById('clip');
@@ -25,6 +27,7 @@ const ripples = [];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const ui = new UI({ p, onChange, onAction });
 const hand = new HandInput((t) => ui.status(t, true));
+const drops = new Drops('sounds/drops.mp3');
 const pointer = { kind: 'pointer', x: 0, y: 0, vx: 0, vy: 0, speed: 0, still: true, present: false, tx: 0, ty: 0, tips: null };
 
 let paused = false;
@@ -57,6 +60,8 @@ function onChange(key, v) {
     fish.resetAll();
   } else if (key === 'source') {
     setSource(v);
+  } else if (key === 'sound' && v) {
+    drops.load();
   }
 }
 
@@ -176,6 +181,7 @@ canvas.addEventListener('pointerdown', (e) => {
   pointer.present = true;
   sim.feed(e.clientX, e.clientY, p.feed);
   ripples.push({ x: e.clientX, y: e.clientY, t0: sim.t, dur: 1.2, r: 1.2 * L });
+  if (p.sound) drops.play();
   hintSeen();
 });
 canvas.addEventListener('pointerup', (e) => {
@@ -195,12 +201,18 @@ addEventListener('keydown', (e) => {
     e.preventDefault();
     onAction('pause');
   } else if (k === 'r') onAction('reseed');
-  else if (k === 'g') {
-    const styles = ['ink', 'koi', 'grid'];
-    ui.set('style', styles[(styles.indexOf(p.style) + 1) % styles.length]);
-  } else return;
+  else if (k === 'g') nextLook();
+  else return;
   e.preventDefault();
 });
+
+// ink, then the grid marks in turn
+function nextLook() {
+  const at = p.style === 'ink' ? 0 : LOOKS.findIndex((l) => l[1] === p.gridMark);
+  const [style, mark] = LOOKS[(at + 1) % LOOKS.length];
+  ui.set('style', style);
+  if (mark) ui.set('gridMark', mark);
+}
 
 function stepPointer(dt, stillPx) {
   if (!pointer.present) return;
@@ -272,12 +284,13 @@ addEventListener('resize', resize);
 ui.build();
 resize();
 syncHandLinks();
+if (p.sound) drops.load();
 requestAnimationFrame(frame);
 
 // console handle. clip(url) runs the hand tracker on a video by url, which
 // is how the video route gets tested without a file picker
 window.followMe = {
-  p, sim, fish, hand, renderer, ui,
+  p, sim, fish, hand, renderer, ui, drops,
   clip(url) {
     p.source = 'video';
     ui.refresh();

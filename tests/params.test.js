@@ -16,13 +16,13 @@ test('defaults produce an empty diff and an empty hash', () => {
 test('a share link round-trips every field type', () => {
   const p = defaults();
   p.count = 55;
-  p.style = 'grid';
+  p.style = 'ink';
   p.pointer = false;
   p.gridColor = '#0000ee';
   p.cruise = 1.25;
   const q = apply(defaults(), fromHash(toHash(p)));
   assert.equal(q.count, 55);
-  assert.equal(q.style, 'grid');
+  assert.equal(q.style, 'ink');
   assert.equal(q.pointer, false);
   assert.equal(q.gridColor, '#0000ee');
   assert.equal(q.cruise, 1.25);
@@ -54,9 +54,9 @@ test('the hash wins over the store', () => {
   const p = defaults();
   p.count = 3;
   save(st, p);
-  const q = load(st, '#count=12&style=koi');
+  const q = load(st, '#count=12&style=ink');
   assert.equal(q.count, 12);
-  assert.equal(q.style, 'koi');
+  assert.equal(q.style, 'ink');
 });
 
 test('every field has a default inside its own range or choices', () => {

@@ -24,13 +24,17 @@ nearby startle and burst away. Tap or click to drop food; a ripple marks the
 spot and the fish eat it over a few seconds.
 
 Bottom right: `settings.`, `hand.`, `about.`. Under `hand.`, `camera.` asks for
-the camera and `a video.` takes a clip from disk. Landmarks are found in the
-page by MediaPipe; the frames never leave the browser. The library and the
-7.8 MB hand model load from CDNs the first time, so the first start takes a
-few seconds. The camera shows as a small thumbnail and a clip as a faint
-background behind the pond; settings can hide either or swap them.
+the camera and `a video.` takes a clip from disk. MediaPipe finds the hand in
+the page; the frames never leave the browser. The library and the 7.8 MB hand
+model load from CDNs once, so the first start takes a few seconds. The camera
+shows as a small thumbnail and a clip as a faint background behind the pond;
+settings can hide either or swap them.
 
-Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle style,
+`drop on tap` in settings plays a water drop on each tap, off by default. The
+drops are 15 slices of one short recording in `sounds/`, one picked at random,
+pitch varied by up to 12% and volume by up to 30%.
+
+Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle the look,
 `esc` close.
 
 Settings persist in the browser. `copy link.` puts the changed ones in the
@@ -63,11 +67,11 @@ number near 0.3. The outline comes from a width profile along the spine with
 a forked caudal fin, and pectoral fins that flare on the inside of a turn and
 when braking.
 
-Three renderings of that geometry: `ink` (fill and hairline), `koi` (seven
-varieties with blotches clipped to the body, chosen per fish from the seed),
-and `grid` (fish rasterised into cells; each cell is a square scaled by how
-much of it the fish covers, inset, optionally fading, optionally in the koi
-colours).
+Two renderings of that geometry: `ink` (fill and hairline) and `grid` (fish
+rasterised into cells, one mark per covered cell). The mark is a square scaled
+by how much of it the fish covers, a cross scaled in `levels` steps, or a
+glyph from the ramp `.:-=+*#%@` thinned to `levels` tones. Cells can fade and
+can take the koi colours, one per fish from the seed.
 
 ## Layout
 
@@ -76,7 +80,8 @@ colours).
 - `src/params.js`: the settings schema. One entry drives the pane,
   localStorage and the share link.
 - `src/sim.js`: boids. `src/fish.js`: spine and outline. `src/render.js`:
-  the three styles and overlays. `src/koi.js`: varieties and blotches.
+  the two styles, the grid marks and overlays. `src/koi.js`: variety colours.
+  `src/sound.js`: the drop on tap, sliced from `sounds/drops.mp3`.
   `src/hand.js`: camera, clip and MediaPipe. `src/ui.js`: the panes.
   `src/svg.js`: the snapshot. `src/main.js`: wiring.
 - `tests/`: `node:test` checks for the physics, the geometry and the schema.
@@ -84,4 +89,4 @@ colours).
 ## Limits
 
 Hand tracking is tuned on a laptop camera. Phones can turn it on but it is
-not tuned there. No sound, and no water beyond the ripple ring.
+not tuned there. No water beyond the ripple ring and the drop sound.
