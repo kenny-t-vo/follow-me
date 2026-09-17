@@ -72,8 +72,9 @@ That geometry is rasterised into cells, one mark per covered cell. The mark
 is a square scaled by how much of it the fish covers, a cross scaled in
 `levels` steps, or a glyph from the ramp `.:-=+*#%@` thinned to `levels`
 tones. Cells can fade and can take the koi colours, one per fish from the
-seed. Ripples and food take the chosen colour; with koi colours they are ink,
-moving toward white as a background feed gets more opaque.
+seed. Ripples, food and the hand marker take the chosen colour; with koi
+colours they are ink, moving toward white as a background feed gets more
+opaque.
 
 ## Layout
 

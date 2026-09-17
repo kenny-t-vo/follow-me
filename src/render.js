@@ -281,8 +281,8 @@ export class Renderer {
     }
   }
 
-  // ripples and food take the fish colour. with koi colours they are ink,
-  // moving toward white with the opacity of a background feed
+  // ripples, food and hand markers take the fish colour. with koi colours
+  // they are ink, moving toward white with the opacity of a background feed
   markColor(st) {
     const p = st.p;
     if (!p.gridPerFish) return hexRgb(p.gridColor);
@@ -319,12 +319,12 @@ export class Renderer {
     if (p.marker) {
       for (const a of actors) {
         if (a.kind !== 'hand') continue;
-        ctx.strokeStyle = 'rgba(17,17,17,0.55)';
+        ctx.strokeStyle = rgba(mark, 0.55);
         ctx.beginPath();
         ctx.arc(a.x, a.y, 0.3 * L, 0, Math.PI * 2);
         ctx.stroke();
         if (a.tips) {
-          ctx.fillStyle = 'rgba(17,17,17,0.7)';
+          ctx.fillStyle = rgba(mark, 0.7);
           for (const tp of a.tips) {
             ctx.beginPath();
             ctx.arc(tp[0], tp[1], 1.5, 0, Math.PI * 2);
