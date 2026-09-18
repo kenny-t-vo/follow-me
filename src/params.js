@@ -37,6 +37,7 @@ export const GROUPS = [
       { key: 'fingertips', label: 'fingertips', type: 'range', min: 0, max: 3, step: 0.05, def: 0.6 },
       { key: 'feed', label: 'feed lasts', type: 'range', min: 1, max: 20, step: 0.5, def: 5, unit: 's' },
       { key: 'sound', label: 'drop on tap', type: 'bool', def: true },
+      { key: 'handDrips', label: 'drips from the hand', type: 'bool', def: true, when: (p) => p.sound },
       { key: 'stateColors', label: 'blue and purple', type: 'bool', def: true },
     ],
   },

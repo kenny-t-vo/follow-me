@@ -32,7 +32,7 @@ faint background behind the pond; settings can hide either or swap them.
 
 Each tap plays a water drop, and a tracked hand plays one for every body
 length it moves. `mute.` in the top right, or `drop on tap` in settings, turns
-them off. The drops are 15 slices of one short recording in `sounds/`, one
+them off; `drips from the hand` turns off the hand alone. The drops are 15 slices of one short recording in `sounds/`, one
 picked at random, pitch varied by up to 12% and volume by up to 30%.
 
 Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle the mark,
@@ -40,7 +40,8 @@ Keys: `s` settings, `h` hand, `space` pause, `r` reseed, `g` cycle the mark,
 
 Settings persist in the browser. `copy link.` puts the changed ones in the
 URL, `save svg.` writes the current frame as vector paths, `reset.` returns
-to the defaults.
+to the defaults. `lucky.` draws every slider, choice and colour at random,
+keeping the fish count, the switches and the hand settings.
 
 Blue fish are attracted right now. Purple ones have just left the hand and
 fade back over a few seconds. Those are the site's link colours, with the

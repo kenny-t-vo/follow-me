@@ -10,6 +10,8 @@ import { Drops } from './sound.js';
 const STEP = 1 / 60;
 const HINTED = 'follow-me.hinted';
 const MARKS = ['square', 'cross', 'ascii'];
+// lucky. leaves the count, the switches and the hand group alone
+const LUCKY_KEEP = new Set(['count', 'pointer', 'stateColors', 'sound', 'handDrips', 'mirror', 'feedView', 'feedOpacity', 'marker']);
 
 const canvas = document.getElementById('pond');
 const clipInput = document.getElementById('clip');
@@ -91,6 +93,22 @@ function onAction(name) {
   } else if (name === 'svg') {
     download(snapshot(state(hand.hands), renderer), 'follow-me.svg');
     ui.status('svg saved.');
+  } else if (name === 'lucky') {
+    for (const f of P.FIELDS) {
+      if (LUCKY_KEEP.has(f.key) || f.session) continue;
+      if (f.type === 'range') {
+        const steps = Math.round((f.max - f.min) / f.step);
+        p[f.key] = Number((f.min + Math.floor(Math.random() * (steps + 1)) * f.step).toFixed(4));
+      } else if (f.type === 'choice') p[f.key] = f.choices[Math.floor(Math.random() * f.choices.length)];
+      else if (f.type === 'color') p[f.key] = '#' + Math.floor(Math.random() * 0x1000000).toString(16).padStart(6, '0');
+    }
+    P.save(localStorage, p);
+    L = lengthFor();
+    sim.L = L;
+    sim.reseed(p.seed);
+    fish.resetAll();
+    ui.refresh();
+    ui.status('lucky.');
   } else if (name === 'reseed') {
     onChange('seed', 1 + Math.floor(Math.random() * 9999));
     ui.refresh();
@@ -241,7 +259,7 @@ function stepHandDrops(hd) {
   if (hd.travel >= L && sim.t - hd.dropAt > 0.15) {
     hd.travel = 0;
     hd.dropAt = sim.t;
-    if (p.sound) drops.play();
+    if (p.sound && p.handDrips) drops.play();
   }
 }
 
