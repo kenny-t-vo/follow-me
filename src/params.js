@@ -50,7 +50,7 @@ export const GROUPS = [
       { key: 'gridLevels', label: 'levels', type: 'range', min: 2, max: 9, step: 1, def: 5, when: (p) => p.gridMark !== 'square' },
       { key: 'gridColor', label: 'colour', type: 'color', def: '#111111', when: (p) => !p.gridPerFish },
       { key: 'gridPerFish', label: 'koi colours', type: 'bool', def: false },
-      { key: 'gridFade', label: 'fade', type: 'range', min: 0, max: 0.97, step: 0.01, def: 0 },
+      { key: 'gridFade', label: 'fade', type: 'range', min: 0, max: 0.99, step: 0.01, def: 0.8 },
     ],
   },
   {
