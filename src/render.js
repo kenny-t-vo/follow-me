@@ -95,7 +95,7 @@ export class Renderer {
     return c;
   }
 
-  // st: { sim, fish, p, L, actors, ripples, video, t, reduced, now }
+  // st: { sim, fish, p, L, actors, ripples, video, t, dt, reduced }
   frame(st) {
     const ctx = this.ctx, dpr = this.dpr, w = this.w, h = this.h;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -208,7 +208,9 @@ export class Renderer {
       octx.fill(body);
     }
     const data = octx.getImageData(0, 0, cols, rows).data;
+    // fade is per 60 Hz frame; scaled by the frame's dt so all refresh rates match
     const fade = p.gridFade;
+    const decay = Math.pow(fade, (st.dt || 0) * 60);
     const buf = this.gridBuf, rgbBuf = this.gridRgb;
     const groups = new Map();
     for (let r = 0; r < rows; r++) {
@@ -218,7 +220,7 @@ export class Renderer {
         let a = data[o + 3] / 255;
         let key;
         if (fade > 0) {
-          const kept = buf[idx] * fade;
+          const kept = buf[idx] * decay;
           if (a >= kept) {
             buf[idx] = a;
             if (a > 0.12) rgbBuf[idx] = (data[o] << 16) | (data[o + 1] << 8) | data[o + 2];

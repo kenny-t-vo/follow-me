@@ -270,11 +270,12 @@ function actorsOf(hands) {
   return a;
 }
 
-function state(hands) {
+function state(hands, dt = 0) {
   return {
     sim, fish, p, L,
     actors: actorsOf(hands),
     ripples,
+    dt,
     video: hand.ready ? hand.video : null,
     mirror: p.mirror && hand.kind === 'camera',
     t: sim.t,
@@ -306,7 +307,7 @@ function frame(now) {
       stepHandDrops(hd);
     }
   }
-  renderer.frame(state(hands));
+  renderer.frame(state(hands, dt));
   fpsFrames++;
   fpsTime += dt;
   if (fpsTime >= 0.5) {
