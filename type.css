@@ -2,62 +2,56 @@
    shared type and colour, loaded by every page.
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Redaction 35, Forest Young & Jeremy Mickel, SIL OFL 1.1.
-   self-hosted; licence in assets/fonts/LICENSE.txt */
+/* Kenny's faces, SIL OFL 1.1, self-hosted with their licences in
+   assets/fonts/ (OFL-HiepHoa.txt, OFL-LongAn.txt):
+   Hiep Hoa 35, from Redaction 35 by Forest Young and Jeremy Mickel (MCKL);
+   Long An, from STIX Two Text. latin and vietnamese subsets. */
 @font-face{
-  font-family:"Redaction 35";
-  src:url("fonts/redaction-35-400.woff2") format("woff2");
-  font-weight:400;
-  font-style:normal;
-  font-display:swap;
+  font-family:"Hiep Hoa 35";
+  src:url("fonts/HiepHoa35-Regular.woff2") format("woff2");
+  font-weight:400; font-style:normal; font-display:swap;
 }
 
-/* Plantin MT Pro through local() only; the Adobe Fonts licence is desktop,
-   so no file is served. Chrome exposes the "Plantin MT Pro" family but not
-   the Light and Semibold subfamilies, so faces are named by PostScript name:
-   400 is Light, 600 is Semibold. */
+/* the body weights as Plantin's were: 400 is Light, 600 is Semibold */
 @font-face{
-  font-family:"Plantin";
-  src:local("PlantinMTPro-Light");
-  font-weight:400; font-style:normal;
+  font-family:"Long An";
+  src:url("fonts/LongAn-Light.woff2") format("woff2");
+  font-weight:400; font-style:normal; font-display:swap;
 }
 @font-face{
-  font-family:"Plantin";
-  src:local("PlantinMTPro-LightItalic");
-  font-weight:400; font-style:italic;
+  font-family:"Long An";
+  src:url("fonts/LongAn-LightItalic.woff2") format("woff2");
+  font-weight:400; font-style:italic; font-display:swap;
 }
 @font-face{
-  font-family:"Plantin";
-  src:local("PlantinMTPro-Semibold");
-  font-weight:600; font-style:normal;
+  font-family:"Long An";
+  src:url("fonts/LongAn-Semibold.woff2") format("woff2");
+  font-weight:600; font-style:normal; font-display:swap;
 }
 
-/* Times New Roman set to Plantin Light's line metrics (ascent 695, descent
-   305 per 1000) so it sits on the same baseline. 104% because Times sets
-   about 6% narrower at a matching x-height (447 vs 450). */
+/* Times New Roman at Long An's set width and line metrics, shown until the
+   files load. size-adjust matches the width of a 290-character passage
+   (Light 102.5%, Light Italic 97.8%, Semibold against Times Bold 101.3%);
+   size-adjust scales the overrides too, so each is Long An's ascent or
+   descent per 1000 divided by it (Light 1021/346, Light Italic 1018/326,
+   Semibold 1028/377). measured in Chromium, 2026-10-09. */
 @font-face{
-  font-family:"Plantin fallback";
+  font-family:"Long An fallback";
   src:local("TimesNewRomanPSMT"), local("Times New Roman");
   font-weight:400; font-style:normal;
-  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+  size-adjust:102.5%; ascent-override:99.6%; descent-override:33.8%; line-gap-override:0%;
 }
 @font-face{
-  font-family:"Plantin fallback";
+  font-family:"Long An fallback";
   src:local("TimesNewRomanPS-ItalicMT"), local("Times New Roman Italic");
   font-weight:400; font-style:italic;
-  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+  size-adjust:97.8%; ascent-override:104.1%; descent-override:33.3%; line-gap-override:0%;
 }
 @font-face{
-  font-family:"Plantin fallback";
+  font-family:"Long An fallback";
   src:local("TimesNewRomanPS-BoldMT"), local("Times New Roman Bold");
   font-weight:700; font-style:normal;
-  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
-}
-@font-face{
-  font-family:"Plantin fallback";
-  src:local("TimesNewRomanPS-BoldItalicMT"), local("Times New Roman Bold Italic");
-  font-weight:700; font-style:italic;
-  size-adjust:104%; ascent-override:69.5%; descent-override:30.5%; line-gap-override:0%;
+  size-adjust:101.3%; ascent-override:101.5%; descent-override:37.2%; line-gap-override:0%;
 }
 
 :root{
@@ -75,11 +69,11 @@
   --purple:#551a8b;
 
   /* ── families ─────────────────────────────────────────────────────
-     display: Redaction 35, shipped with the site.
-     body:    Plantin MT Pro, else Times New Roman (drawn from Plantin).
+     display: Hiep Hoa 35, shipped with the site.
+     body:    Long An, shipped with the site; Times until it loads.
      figures use the body face.                                          */
-  --display:"Redaction 35","Times New Roman",Times,serif;
-  --body:"Plantin","Plantin MT Pro","Plantin fallback","Times New Roman",Times,
+  --display:"Hiep Hoa 35","Times New Roman",Times,serif;
+  --body:"Long An","Long An fallback","Times New Roman",Times,
          "Liberation Serif","Hiragino Mincho ProN","Yu Mincho",serif;
 
   /* ── six steps ────────────────────────────────────────────────────
@@ -110,10 +104,10 @@
   --hl-height:1.55em;
   --hl-bleed:.16em;
 
-  /* body tracking. -.01em is -10 in indesign's 1/1000 em units.
+  /* body tracking. Long An at 0 sets as Plantin did at -10 (-.01em).
      the display face is not affected: every rule using --display
      declares its own letter-spacing. */
-  --track:-.01em;
+  --track:0;
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
